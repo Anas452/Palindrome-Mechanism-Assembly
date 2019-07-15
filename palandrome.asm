@@ -128,17 +128,19 @@ rev_str:
     addi $s3,$s3,0
 
 reverse_loop:
-		add	$s4, $t1, $s3	
-		lb	$s5, 0($s4)		
-		beq	$s5,0 exit		
-		sb	$s5, output($t0)			
-		subu	$t0, $t0, 1		
-		addi	$s3, $s3, 1		
-		j	reverse_loop		
+		
+    add	$s4, $t1, $s3	
+	lb	$s5, 0($s4)		
+	beq	$s5,0 exit		
+	sb	$s5, output($t0)			
+	addi  $t0, $t0, -1		
+	addi  $s3, $s3, 1		
+	j	reverse_loop		
 	
 exit:
 
     li $v0,4
+    la $a0, msg3
     syscall
 
 	li	$v0, 4			
@@ -147,7 +149,7 @@ exit:
 		
 	li	$v0, 10			
 	syscall
-	      
+    jr $ra
 
 
 
