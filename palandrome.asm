@@ -1,10 +1,10 @@
 .data 
 
-    # msg: .asciiz "maham"
     msg: .asciiz "enter any string"
-    # try_msg: .asciiz "the lenght of string"
-    msg1: .asciiz "IT is Palondrome"
-    msg2: .asciiz "it is not a palondrome"
+    msg1: .asciiz "\nIT is Palondrome"
+    msg2: .asciiz "\nit is not a palondrome"
+    msg3: .asciiz "\nthe mirror image is "
+    output: .space 256
 
 .text
  
@@ -24,21 +24,10 @@ main:
     # jal final_result
 
    
-    move  $t0,    $v0                         #set a0 to palindrom return value
+    move  $s2,    $v0                         #set a0 to palindrom return value
     
     jal final_result
 
-    # li $v0,4
-    # la $a0,msg1
-    # syscall
-    
-    # li $v0,4
-    # la $a0,msg2
-    # syscall
-
-
-    # li  $v0, 1   1                           #set 1 to v0 - as this is system call for print int
-    # syscall 
 
     li $v0,10
     syscall
@@ -116,7 +105,7 @@ pal_exit:
 
 final_result:
 
-    beq $t0, 0, invalid_pal
+    beq $s2, 0, invalid_pal
     j valid_pal
 
 invalid_pal:
@@ -124,7 +113,7 @@ invalid_pal:
     li $v0,4
     la $a0,msg2
     syscall
-    jr $ra
+    j rev_str
 
 valid_pal:
 
@@ -133,7 +122,32 @@ valid_pal:
     syscall
     jr $ra
     
-# .end mai
+# # .end mai
+rev_str:
+    
+    addi $s3,$s3,0
+
+reverse_loop:
+		add	$s4, $t1, $s3	
+		lb	$s5, 0($s4)		
+		beq	$s5,0 exit		
+		sb	$s5, output($t0)			
+		subu	$t0, $t0, 1		
+		addi	$s3, $s3, 1		
+		j	reverse_loop		
+	
+exit:
+
+    li $v0,4
+    syscall
+
+	li	$v0, 4			
+	la	$a0, output		
+	syscall
+		
+	li	$v0, 10			
+	syscall
+	      
 
 
 
