@@ -1,11 +1,12 @@
 .data 
 
-    msg: .asciiz "Enter Any String:  "
+    msg: .asciiz "\nEnter Any String:  "
     string_input: .space 256
     msg1: .asciiz "\nIt is Palidrome"
     msg2: .asciiz "\nIt is not a Palindrome"
     msg3: .asciiz "\nThe Mirror Image Of The Word Is "
     msg4: .asciiz "\nDo you  Want to Continue(1/0) "
+    msg5: .asciiz "\nInvalid string enter: "
     output: .space 256
 
 .text
@@ -23,8 +24,9 @@ main:
     li $a1 ,256
     # la $a0, msg
     syscall
-     
-    jal palondrome
+
+    jal invalid
+    jal palindrome
 
     move  $s2,    $v0                         
     
@@ -35,6 +37,25 @@ main:
     jr $ra
 
 .end main
+
+.ent invalid
+invalid: 
+
+    lbu $t8 ,0($a0)
+    beq $t8 ,10,invalid_msg
+    j back
+
+    invalid_msg:
+        li $v0, 4
+        la $a0, msg5
+        syscall
+        j main
+
+    back:
+
+        jr $ra
+
+.end invalid
 
 .ent string_lenght
 
@@ -60,9 +81,9 @@ string_lenght:
 
 .end string_lenght
 
-.ent palandrome
+.ent palindrome
 
-palondrome:
+palindrome:
 
     addi $sp, $sp, -8
     sw $ra, 0($sp)
@@ -110,7 +131,7 @@ palondrome:
         addi $sp,$sp,8
         jr $ra
 
-.end palandrome
+.end palindrome
 
 .ent final_result
 final_result:
@@ -180,8 +201,6 @@ final_result:
         j Exit
 
     Exit:
-        lw $s3, 0($sp)
-        addi $sp,$sp,0
         jr $ra
 
 
