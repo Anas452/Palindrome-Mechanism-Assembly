@@ -1,9 +1,11 @@
 .data 
 
-    msg: .asciiz "enter any string"
-    msg1: .asciiz "\nIT is Palondrome"
-    msg2: .asciiz "\nit is not a palondrome"
-    msg3: .asciiz "\nthe mirror image is "
+    msg: .asciiz "Enter Any String:  "
+    string_input: .space 256
+    msg1: .asciiz "\nIt is Palidrome"
+    msg2: .asciiz "\nIt is not a Palindrome"
+    msg3: .asciiz "\nThe Mirror Image Of The Word Is "
+    msg4: .asciiz "\nDo you  Want to Continue(1/0) "
     output: .space 256
 
 .text
@@ -17,17 +19,16 @@ main:
     syscall
 
     li $v0 ,8
-    la $a0, msg
+    la $a0,string_input
+    li $a1 ,256
+    # la $a0, msg
     syscall
-        
+     
     jal palondrome
-    # jal final_result
 
-   
-    move  $s2,    $v0                         #set a0 to palindrom return value
+    move  $s2,    $v0                         
     
     jal final_result
-
 
     li $v0,10
     syscall
@@ -35,34 +36,40 @@ main:
 
 .end main
 
-strl:
+.ent string_lenght
+
+string_lenght:
+
     li $v0 ,0
     move $s0,$a0
 
-strlenght:
+    lenght_loop:
 
-    lbu $t0, 0($s0)
+        lbu $t0, 0($s0)
 
-    beq $t0 ,10,strlenght_exit
+        beq $t0 ,10,strlenght_exit
 
-    addi $s0, $s0, 1
-    addi $v0, $v0, 1
+        addi $s0, $s0, 1
+        addi $v0, $v0, 1
 
-    j strlenght 
+        j lenght_loop 
 
-strlenght_exit:
-    
-    jr $ra
+    strlenght_exit:
+        
+        jr $ra
+
+.end string_lenght
+
+.ent palandrome
 
 palondrome:
 
     addi $sp, $sp, -8
     sw $ra, 0($sp)
     sw $a0, 4($sp)
+    sw $t2, 8($sp)
 
-    jal strl
-
-    
+    jal string_lenght
 
     move $t0 , $v0
     lw $a0, 4($sp)
@@ -76,81 +83,108 @@ palondrome:
     div $t3, $t0, 2
     addi $t3, $t3, 1
     
-pal_loop:
+    pal_loop:
 
-    bge $t2, $t3 ,pal_exit
-    lbu $t4, 0($a0)
+        bge $t2, $t3 ,pal_exit
+        lbu $t4, 0($a0)
 
-    sub $t5, $t0, $t2
-    add $t6 ,$t5, $t1
+        sub $t5, $t0, $t2
+        add $t6 ,$t5, $t1
 
-    lbu $t7, 0($t6)
+        lbu $t7, 0($t6)
 
-    beq $t4, $t7, pal_cont
-    li $v0, 0
-    j pal_exit
+        beq $t4, $t7, pal_cont
+        li $v0, 0
+        j pal_exit
 
-pal_cont:
+    pal_cont:
 
-    addi $a0, $a0, 1
-    addi $t2, $t2, 1
-    j pal_loop
+        addi $a0, $a0, 1
+        addi $t2, $t2, 1
+        j pal_loop
 
-pal_exit:
+    pal_exit:
 
-    lw $ra,0($sp)
-    addi $sp,$sp,8
-    jr $ra
+        lw $t2,8($sp)
+        lw $ra,0($sp)
+        addi $sp,$sp,8
+        jr $ra
 
+.end palandrome
 
+.ent final_result
 final_result:
-
+    
+    addi $sp,$sp,0
+    sw $s3, 0($sp)
+    
     beq $s2, 0, invalid_pal
     j valid_pal
 
-invalid_pal:
+    invalid_pal:
 
-    li $v0,4
-    la $a0,msg2
-    syscall
-    j rev_str
+        li $v0,4
+        la $a0,msg2
+        syscall
+        j rev_str
 
-valid_pal:
+    valid_pal:
 
-    li $v0,4
-    la $a0,msg1
-    syscall
-    jr $ra
-    
-# # .end mai
-rev_str:
-    
-    addi $s3,$s3,0
+        li $v0,4
+        la $a0,msg1
+        syscall
+        
+        j Continue
 
-reverse_loop:
-		
-    add	$s4, $t1, $s3	
-	lb	$s5, 0($s4)		
-	beq	$s5,0 exit		
-	sb	$s5, output($t0)			
-	addi  $t0, $t0, -1		
-	addi  $s3, $s3, 1		
-	j	reverse_loop		
-	
-exit:
+    rev_str:
+        
+        addi $s3,$s3,0
 
-    li $v0,4
-    la $a0, msg3
-    syscall
+    reverse_loop:
+            
+        add	$s4, $t1, $s3	
+        lbu	$s5, 0($s4)		
+        beq	$s5,0 rev_output		
+        sb  $s5, output($t0)			
+        addi  $t0, $t0, -1		
+        addi  $s3, $s3, 1		
+        j	reverse_loop		
 
-	li	$v0, 4			
-	la	$a0, output		
-	syscall
-		
-	li	$v0, 10			
-	syscall
-    jr $ra
+    rev_output:
+
+        li $v0,4
+        la $a0, msg3
+        syscall
+
+        li	$v0, 4			
+        la	$a0, output		
+        syscall
+            
+        j Continue
+
+    Continue:
+
+        li $v0, 4
+        la $a0, msg4
+        syscall
+
+        li $v0 ,5
+        syscall
+
+        move $s6, $v0
+        addi $s7,$0,1
+        lw $s3, 0($sp)
+        addi $sp,$sp,0
+
+        beq $s6,$s7,main
+        j Exit
+
+    Exit:
+        lw $s3, 0($sp)
+        addi $sp,$sp,0
+        jr $ra
 
 
+.end final_result
 
     
